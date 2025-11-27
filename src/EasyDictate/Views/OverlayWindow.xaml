@@ -1,0 +1,48 @@
+<Window x:Class="EasyDictate.Views.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="EasyDictate"
+        Width="220" Height="75"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        WindowStartupLocation="Manual">
+
+    <Border x:Name="MainBorder"
+            Background="#E6202030"
+            CornerRadius="12"
+            Padding="16,12"
+            Margin="4">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.4" Color="Black"/>
+        </Border.Effect>
+        
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- State indicator (animation handled in code) -->
+            <Ellipse x:Name="StateIndicator"
+                     Width="12" Height="12"
+                     Fill="#EF4444"
+                     Margin="0,0,12,0"
+                     VerticalAlignment="Center"/>
+
+            <!-- Status text -->
+            <TextBlock x:Name="StatusText"
+                       Grid.Column="1"
+                       Text="Listening..."
+                       Foreground="#E4E4E7"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       FontFamily="Segoe UI"/>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>EasyDictate</AssemblyName>
+    <RootNamespace>EasyDictate</RootNamespace>
+    <Version>1.0.0</Version>
+    <Authors>EasyDictate</Authors>
+    <Product>EasyDictate</Product>
+    <Description>Simple, fast, private voice dictation for Windows</Description>
+    <Copyright>Copyright © 2025</Copyright>
+    
+    <!-- Allow unsafe code for some Win32 interop -->
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <!-- Publish configuration -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Whisper.net for local speech-to-text -->
+    <PackageReference Include="Whisper.net" Version="1.7.4" />
+    <PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />
+    
+    <!-- NAudio for audio capture -->
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    
+    <!-- System tray icon -->
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
+    
+    <!-- JSON configuration -->
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    
+    <!-- For icon generation -->
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\**\*.txt" />
+    <Resource Include="Resources\icon.svg" />
+    <Resource Include="Resources\favicon.svg" />
+    <Resource Include="Resources\icon.ico" />
+  </ItemGroup>
+
+</Project>
+

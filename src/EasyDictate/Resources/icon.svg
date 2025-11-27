@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- Background with rounded corners -->
+  <rect x="0" y="0" width="256" height="256" rx="32" ry="32" fill="#4f46e5"/>
+  
+  <!-- Microphone body -->
+  <path d="M128 48c-16.5 0-30 13.5-30 30v56c0 16.5 13.5 30 30 30s30-13.5 30-30V78c0-16.5-13.5-30-30-30z" 
+        fill="none" stroke="white" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Microphone arc -->
+  <path d="M182 120v16c0 29.8-24.2 54-54 54s-54-24.2-54-54v-16" 
+        fill="none" stroke="white" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Stand -->
+  <line x1="128" y1="190" x2="128" y2="218" 
+        stroke="white" stroke-width="16" stroke-linecap="round"/>
+</svg>
+

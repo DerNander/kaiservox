@@ -8,6 +8,10 @@
   <strong>Simple, Fast, Private Voice Dictation for Windows</strong>
 </p>
 
+<p align="center">
+  <a href="https://easydictate.app">easydictate.app</a>
+</p>
+
 EasyDictate is a lightweight Windows application that lets you dictate text using your voice. Hold a hotkey, speak, and your words are instantly transcribed and ready to paste. All processing happens locally on your computer - your voice never leaves your device.
 
 ---

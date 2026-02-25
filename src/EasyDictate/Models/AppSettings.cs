@@ -51,6 +51,11 @@ public class AppSettings
     /// Play sound on recording start/stop
     /// </summary>
     public bool PlaySounds { get; set; } = true;
+
+    /// <summary>
+    /// Transcription language ("auto" for automatic detection)
+    /// </summary>
+    public string Language { get; set; } = "auto";
 }
 
 /// <summary>

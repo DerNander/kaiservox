@@ -54,7 +54,7 @@ public partial class App : Application
 
         ModelManager = new ModelManager(Settings);
         AudioCapture = new AudioCaptureService(Settings);
-        Transcription = new TranscriptionService(ModelManager);
+        Transcription = new TranscriptionService(ModelManager, Settings.Current);
         Output = new OutputService(Settings);
         Hotkey = new HotkeyService();
         Coordinator = new DictationCoordinator(AudioCapture, Transcription, Output);

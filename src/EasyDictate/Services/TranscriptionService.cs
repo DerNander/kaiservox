@@ -9,6 +9,7 @@ namespace EasyDictate.Services;
 public class TranscriptionService : IDisposable
 {
     private readonly ModelManager _modelManager;
+    private readonly string _language;
     private WhisperProcessor? _processor;
     private bool _isInitialized;
     private bool _disposed;
@@ -29,9 +30,10 @@ public class TranscriptionService : IDisposable
     /// </summary>
     public event EventHandler<Exception>? TranscriptionFailed;
 
-    public TranscriptionService(ModelManager modelManager)
+    public TranscriptionService(ModelManager modelManager, Models.AppSettings settings)
     {
         _modelManager = modelManager;
+        _language = string.IsNullOrWhiteSpace(settings.Language) ? "auto" : settings.Language.Trim();
     }
 
     /// <summary>
@@ -55,7 +57,7 @@ public class TranscriptionService : IDisposable
                 var factory = WhisperFactory.FromPath(_modelManager.ModelPath);
                 
                 _processor = factory.CreateBuilder()
-                    .WithLanguage("en")           // English only for distil-whisper
+                    .WithLanguage(_language)
                     .Build();
 
                 _isInitialized = true;

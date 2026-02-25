@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace EasyDictate.Helpers;
+namespace KaiserVox.Helpers;
 
 /// <summary>
 /// Win32 API P/Invoke declarations for hotkeys, keyboard input, and window management

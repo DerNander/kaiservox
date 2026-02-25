@@ -1,7 +1,7 @@
 using System.IO;
 using System.Net.Http;
 
-namespace EasyDictate.Services;
+namespace KaiserVox.Services;
 
 /// <summary>
 /// Manages Whisper model download and storage
@@ -26,7 +26,7 @@ public class ModelManager
         {
             Timeout = TimeSpan.FromHours(2)
         };
-        _httpClient.DefaultRequestHeaders.Add("User-Agent", "EasyDictate/1.0");
+        _httpClient.DefaultRequestHeaders.Add("User-Agent", "KaiserVox/1.0");
     }
 
     public IReadOnlyList<string> GetAvailableModels()
@@ -97,7 +97,7 @@ public class ModelManager
         }
 
         // Step 2: Create temp file path in Windows temp folder
-        var tempPath = Path.Combine(Path.GetTempPath(), $"easydictate_{Guid.NewGuid():N}.bin");
+        var tempPath = Path.Combine(Path.GetTempPath(), $"kaiservox_{Guid.NewGuid():N}.bin");
 
         // Step 3: Make HTTP request
         HttpResponseMessage response;

@@ -1,16 +1,17 @@
 using System.IO;
 using System.Text.Json;
-using EasyDictate.Models;
+using KaiserVox.Models;
 using Microsoft.Win32;
 
-namespace EasyDictate.Services;
+namespace KaiserVox.Services;
 
 /// <summary>
 /// Manages application settings persistence
 /// </summary>
 public class SettingsService
 {
-    private const string AppName = "EasyDictate";
+    private const string AppName = "KaiserVox";
+    private const string LegacyAppName = "EasyDictate";
     private const string ConfigFileName = "config.json";
     
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -41,16 +42,53 @@ public class SettingsService
 
     public SettingsService()
     {
-        AppDataPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            AppName);
-        
+        var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        AppDataPath = Path.Combine(roaming, AppName);
+
         ModelsPath = Path.Combine(AppDataPath, "models");
         ConfigPath = Path.Combine(AppDataPath, ConfigFileName);
-        
+
+        MigrateLegacyDataIfNeeded(roaming);
+
         // Ensure directories exist
         Directory.CreateDirectory(AppDataPath);
         Directory.CreateDirectory(ModelsPath);
+    }
+
+    private void MigrateLegacyDataIfNeeded(string roamingPath)
+    {
+        try
+        {
+            var legacyPath = Path.Combine(roamingPath, LegacyAppName);
+
+            if (!Directory.Exists(legacyPath) || Directory.Exists(AppDataPath))
+                return;
+
+            CopyDirectory(legacyPath, AppDataPath);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Legacy migration skipped: {ex.Message}");
+        }
+    }
+
+    private static void CopyDirectory(string sourceDir, string destinationDir)
+    {
+        Directory.CreateDirectory(destinationDir);
+
+        foreach (var filePath in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+        {
+            var relativePath = Path.GetRelativePath(sourceDir, filePath);
+            var targetPath = Path.Combine(destinationDir, relativePath);
+            var targetParent = Path.GetDirectoryName(targetPath);
+
+            if (!string.IsNullOrEmpty(targetParent))
+            {
+                Directory.CreateDirectory(targetParent);
+            }
+
+            File.Copy(filePath, targetPath, overwrite: true);
+        }
     }
 
     /// <summary>

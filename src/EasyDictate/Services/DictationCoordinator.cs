@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace EasyDictate.Services;
+namespace KaiserVox.Services;
 
 /// <summary>
 /// Coordinates the dictation workflow: record -> transcribe -> output
@@ -152,7 +152,7 @@ public class DictationCoordinator
             Application.Current?.Dispatcher.BeginInvoke(() =>
             {
                 MessageBox.Show($"Transcription failed:\n\n{ex.Message}\n\nDetails: {ex.GetType().Name}",
-                    "EasyDictate Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    "KaiserVox Error", MessageBoxButton.OK, MessageBoxImage.Error);
             });
             HideOverlay();
         }

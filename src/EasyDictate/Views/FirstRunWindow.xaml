@@ -1,7 +1,7 @@
-<Window x:Class="EasyDictate.Views.FirstRunWindow"
+<Window x:Class="KaiserVox.Views.FirstRunWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Welcome to EasyDictate"
+        Title="Welcome to KaiserVox"
         Width="520" Height="600"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
@@ -19,7 +19,7 @@
             <!-- Header -->
             <StackPanel Grid.Row="0" Margin="0,0,0,32">
                 <TextBlock x:Name="StepTitle"
-                           Text="Welcome to EasyDictate"
+                           Text="Welcome to KaiserVox"
                            FontSize="28"
                            FontWeight="Bold"
                            Foreground="{StaticResource TextBrush}"/>
@@ -135,7 +135,7 @@
                                    Foreground="{StaticResource TextBrush}"
                                    Margin="0,0,0,8"/>
                         
-                        <TextBlock Text="EasyDictate uses a state-of-the-art AI model for accurate transcription. This needs to be downloaded once (~140 MB)."
+                        <TextBlock Text="KaiserVox uses a state-of-the-art AI model for accurate transcription. This needs to be downloaded once (~140 MB)."
                                    FontSize="13"
                                    Foreground="{StaticResource TextMutedBrush}"
                                    TextWrapping="Wrap"
@@ -178,7 +178,7 @@
                                    HorizontalAlignment="Center"
                                    TextWrapping="Wrap"
                                    TextAlignment="Center"/>
-                        <TextBlock Text="EasyDictate will run in your system tray"
+                        <TextBlock Text="KaiserVox will run in your system tray"
                                    FontSize="13"
                                    Foreground="{StaticResource TextMutedBrush}"
                                    HorizontalAlignment="Center"

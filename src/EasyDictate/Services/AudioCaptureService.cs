@@ -2,7 +2,7 @@ using System.IO;
 using NAudio.Wave;
 using NAudio.CoreAudioApi;
 
-namespace EasyDictate.Services;
+namespace KaiserVox.Services;
 
 /// <summary>
 /// Handles microphone audio capture for transcription

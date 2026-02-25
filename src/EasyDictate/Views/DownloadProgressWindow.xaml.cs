@@ -1,7 +1,7 @@
 using System.Windows;
-using EasyDictate.Services;
+using KaiserVox.Services;
 
-namespace EasyDictate.Views;
+namespace KaiserVox.Views;
 
 /// <summary>
 /// Simple progress window for model download

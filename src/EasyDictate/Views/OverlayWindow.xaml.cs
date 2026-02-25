@@ -1,9 +1,9 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using EasyDictate.Services;
+using KaiserVox.Services;
 
-namespace EasyDictate.Views;
+namespace KaiserVox.Views;
 
 /// <summary>
 /// Overlay window showing dictation state

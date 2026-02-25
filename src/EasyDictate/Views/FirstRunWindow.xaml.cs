@@ -3,10 +3,10 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using EasyDictate.Models;
-using EasyDictate.Services;
+using KaiserVox.Models;
+using KaiserVox.Services;
 
-namespace EasyDictate.Views;
+namespace KaiserVox.Views;
 
 /// <summary>
 /// First-run setup wizard
@@ -75,7 +75,7 @@ public partial class FirstRunWindow : Window
         // Update title and description
         (StepTitle.Text, StepDescription.Text) = _currentStep switch
         {
-            1 => ("Welcome to EasyDictate", "Let's get you set up in just a few steps"),
+            1 => ("Welcome to KaiserVox", "Let's get you set up in just a few steps"),
             2 => ("Select Microphone", "Choose the microphone you'll use for dictation"),
             3 => ("Configure Hotkey", "Set up your push-to-talk keyboard shortcut"),
             4 => ("Download Model", "Get the speech recognition model"),

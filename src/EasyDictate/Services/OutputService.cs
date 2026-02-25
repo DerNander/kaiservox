@@ -1,9 +1,9 @@
 using System.Runtime.InteropServices;
 using System.Windows;
-using EasyDictate.Helpers;
-using EasyDictate.Models;
+using KaiserVox.Helpers;
+using KaiserVox.Models;
 
-namespace EasyDictate.Services;
+namespace KaiserVox.Services;
 
 /// <summary>
 /// Handles output of transcribed text (paste or clipboard)

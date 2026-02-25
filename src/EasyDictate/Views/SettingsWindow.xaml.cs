@@ -1,12 +1,12 @@
 using System.Windows;
 using System.Windows.Input;
-using EasyDictate.Models;
-using EasyDictate.Services;
+using KaiserVox.Models;
+using KaiserVox.Services;
 
-namespace EasyDictate.Views;
+namespace KaiserVox.Views;
 
 /// <summary>
-/// Settings window for configuring EasyDictate
+/// Settings window for configuring KaiserVox
 /// </summary>
 public partial class SettingsWindow : Window
 {

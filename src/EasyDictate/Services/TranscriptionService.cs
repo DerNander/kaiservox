@@ -1,7 +1,7 @@
 using System.IO;
 using Whisper.net;
 
-namespace EasyDictate.Services;
+namespace KaiserVox.Services;
 
 /// <summary>
 /// Handles speech-to-text transcription using Whisper.net

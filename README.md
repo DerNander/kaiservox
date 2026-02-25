@@ -1,225 +1,134 @@
-# EasyDictate
+# KaiserVox
 
 <p align="center">
-  <img src="src/EasyDictate/Resources/icon.svg" width="128" height="128" alt="EasyDictate Icon">
+  <img src="src/EasyDictate/Resources/icon.svg" alt="KaiserVox" width="96" />
 </p>
 
 <p align="center">
-  <strong>Simple, Fast, Private Voice Dictation for Windows</strong>
+  <strong>GPU-accelerated local voice dictation for Windows.</strong><br>
+  Fast. Private. Cyber-clean.
 </p>
 
 <p align="center">
-  <a href="https://easydictate.app">easydictate.app</a>
+  <img alt=".NET 8" src="https://img.shields.io/badge/.NET-8-512BD4?logo=dotnet&logoColor=white">
+  <img alt="Windows" src="https://img.shields.io/badge/Windows-10%2B-0078D6?logo=windows&logoColor=white">
+  <img alt="CUDA" src="https://img.shields.io/badge/NVIDIA-CUDA-76B900?logo=nvidia&logoColor=white">
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-0f172a">
 </p>
 
-EasyDictate is a lightweight Windows application that lets you dictate text using your voice. Hold a hotkey, speak, and your words are instantly transcribed and ready to paste. All processing happens locally on your computer - your voice never leaves your device.
+---
+
+## What is KaiserVox?
+
+**KaiserVox** is an enhanced fork of EasyDictate focused on one thing: local dictation that feels instant and stays private.
+
+No cloud hop. No subscriptions. No telemetry wall. Just your mic, your machine, your models.
+
+### Highlights
+
+- NVIDIA **CUDA GPU acceleration** (Whisper runtime CUDA backend)
+- **Multi-language transcription** (`auto` by default)
+- **Dynamic model scanner** (`*.bin` in your models folder)
+- **Model selection dropdown** in Settings
+- **Dark UI** optimized for low-glare workflows
+- 100% local and free
 
 ---
 
-## Key Features
+## Privacy
 
-### Push-to-Talk Dictation
-- Hold `Alt + Space` (customizable) to start recording
-- Release to transcribe and copy to clipboard
-- Works in any application - Word, email, browsers, code editors
+KaiserVox runs fully on your machine.
 
-### 100% Local & Private
-- Uses OpenAI's Whisper model running entirely on your PC
-- No cloud services, no API keys, no subscriptions
-- Your voice data never leaves your computer
-
-### Fast & Accurate
-- Powered by whisper-base-en model optimized for English
-- Transcription typically completes in 1-2 seconds
-- Automatic punctuation and capitalization
-
-### Minimal & Unobtrusive
-- Lives in your system tray
-- Small overlay shows recording/transcribing status
-- No complex UI or configuration required
+- Audio is processed locally
+- Models are local files
+- No external transcription API
+- No account required
 
 ---
 
-## Benefits
+## Architecture
 
-### For Privacy-Conscious Users
-Traditional voice dictation services send your audio to cloud servers for processing. EasyDictate runs the entire speech recognition pipeline locally using the Whisper model. Your conversations, medical notes, legal documents, and personal thoughts stay on your machine.
+```text
+Push-to-Talk Hotkey
+        │
+        ▼
+AudioCaptureService (NAudio)
+        │
+        ▼
+TranscriptionService (Whisper.net + CUDA runtime)
+        │
+        ▼
+OutputService (paste active window / clipboard)
+```
 
-### For Power Users & Developers
-Voice input is up to 5x faster than typing for many people. EasyDictate integrates seamlessly into any workflow - dictate code comments, write documentation, compose emails, or take notes without switching contexts.
+Core modules:
 
-### For Users with RSI or Accessibility Needs
-Reduce keyboard usage by speaking instead of typing. The push-to-talk interface is simple enough for anyone to use, and the local processing means it works offline.
+- `SettingsService` - config + startup + data migration
+- `ModelManager` - model download + model discovery + selected model resolution
+- `DictationCoordinator` - workflow orchestration (record -> transcribe -> output)
+- WPF Views - first-run wizard, settings, overlay, tray state
 
-### No Cost
-Most voice dictation apps charge $10-15/month subscriptions. EasyDictate is free and open source - the underlying Whisper technology runs entirely on your own hardware with no fees ever.
+### Data paths
+
+Current app data root:
+
+`%APPDATA%\KaiserVox`
+
+Includes:
+
+- `config.json`
+- `models\*.bin`
+
+Migration is built in: if `%APPDATA%\EasyDictate` exists and `%APPDATA%\KaiserVox` does not, settings/models are copied automatically on first start.
 
 ---
 
-## How It Works
+## Comparison
 
-### User Flow
-1. **Start the app** - EasyDictate runs in the system tray
-2. **Hold the hotkey** - Default is `Alt + Space`
-3. **Speak** - A small overlay shows "Listening..."
-4. **Release** - Audio is transcribed locally
-5. **Paste** - Text is copied to clipboard, ready for `Ctrl+V`
-
-### Technical Architecture
-
-```
-┌─────────────────────────────────────────┐
-│           EasyDictate.exe               │
-├─────────────────────────────────────────┤
-│  System Tray Icon    │   Overlay Window │
-├─────────────────────────────────────────┤
-│  Global Hotkey Handler (Win32 API)      │
-├─────────────────────────────────────────┤
-│  Audio Capture (NAudio/WASAPI)          │
-├─────────────────────────────────────────┤
-│  Whisper.net (whisper.cpp bindings)     │
-├─────────────────────────────────────────┤
-│  Output: Clipboard or SendInput         │
-└─────────────────────────────────────────┘
-```
+| Feature | KaiserVox | EasyDictate (original) | Typical Cloud Dictation |
+|---|---|---|---|
+| Local-only processing | Yes | Yes | Usually No |
+| NVIDIA CUDA acceleration | Yes | No | N/A |
+| Dynamic model discovery | Yes | Limited/default model flow | N/A |
+| Settings model picker | Yes | Limited | N/A |
+| Multi-language support | Yes (`auto`) | Basic/limited | Usually Yes |
+| Privacy control | Full local control | Local-first | Provider-dependent |
+| Cost | Free | Free | Often subscription/usage-based |
 
 ---
 
-## Implementation Details
+## Build
 
-### Technology Stack
+From repo root:
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| Framework | .NET 8 / WPF | Windows-native UI and application |
-| Speech Recognition | Whisper.net | C# bindings to whisper.cpp |
-| Audio Capture | NAudio | WASAPI microphone recording |
-| System Tray | Hardcodet.NotifyIcon.Wpf | Tray icon with context menu |
-| Configuration | System.Text.Json | Settings persistence |
-
-### Project Structure
-
-```
-src/EasyDictate/
-├── App.xaml.cs                 # Application entry, service initialization
-├── Services/
-│   ├── AudioCaptureService.cs  # Microphone recording (16kHz mono)
-│   ├── TranscriptionService.cs # Whisper.net integration
-│   ├── HotkeyService.cs        # Global push-to-talk hotkey
-│   ├── OutputService.cs        # Clipboard and keystroke output
-│   ├── ModelManager.cs         # Model download and management
-│   ├── SettingsService.cs      # JSON config persistence
-│   └── DictationCoordinator.cs # Orchestrates the dictation flow
-├── Views/
-│   ├── OverlayWindow.xaml      # Listening/Transcribing indicator
-│   ├── SettingsWindow.xaml     # Configuration UI
-│   ├── FirstRunWindow.xaml     # Setup wizard
-│   └── TrayIconViewModel.cs    # Tray icon logic
-├── Models/
-│   └── AppSettings.cs          # Settings model
-└── Helpers/
-    └── Win32.cs                # P/Invoke for hotkeys, SendInput
+```powershell
+cd src/EasyDictate
+"C:\Program Files\dotnet\dotnet.exe" build
+"C:\Program Files\dotnet\dotnet.exe" publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true
 ```
 
-### Key Components
+Published executable:
 
-#### Audio Capture
-- Uses WASAPI (Windows Audio Session API) for low-latency recording
-- Captures at 16kHz mono PCM (Whisper's expected format)
-- Automatically resamples from microphone's native format
-
-#### Transcription
-- Loads whisper-base-en GGML model (~140MB)
-- Processes audio buffer directly in memory
-- Filters common Whisper hallucinations (e.g., "Thank you for watching")
-
-#### Hotkey System
-- Uses Win32 `RegisterHotKey` API for system-wide capture
-- Polls key state to detect key release (trigger transcription)
-- Configurable modifier + key combination
-
-#### Output Modes
-- **Clipboard**: Copies text, user presses Ctrl+V
-- **Paste to Active Window**: Simulates Ctrl+V after clipboard copy
-
-### Settings & Persistence
-
-Settings stored in: `%APPDATA%\EasyDictate\config.json`
-
-```json
-{
-  "isFirstRun": false,
-  "hotkeyModifiers": 1,
-  "hotkeyKey": 32,
-  "microphoneDeviceId": "default",
-  "outputMode": "CopyToClipboard",
-  "runOnStartup": false,
-  "showOverlay": true
-}
-```
-
-Model stored in: `%APPDATA%\EasyDictate\models\ggml-base.en.bin`
+`src/EasyDictate/bin/Release/net8.0-windows/win-x64/publish/KaiserVox.exe`
 
 ---
 
-## System Requirements
+## Part of the Kaiser ecosystem
 
-- **OS**: Windows 10 or Windows 11 (64-bit)
-- **RAM**: 4GB minimum (8GB recommended)
-- **Disk**: ~200MB (app + model)
-- **Microphone**: Any Windows-compatible microphone
-
----
-
-## Comparison with Competitors
-
-| Feature | EasyDictate | Wispr Flow | Dragon | Windows Dictation |
-|---------|-------------|------------|--------|-------------------|
-| Local Processing | ✅ | ❌ Cloud | ✅ | ❌ Cloud |
-| Privacy | ✅ Full | ⚠️ Opt-in | ✅ Full | ❌ Microsoft |
-| Price | Free | $12/month | $150-500 | Free |
-| AI Cleanup | ❌ v1 | ✅ | ✅ | ❌ |
-| Offline | ✅ | ❌ | ✅ | ❌ |
-| Cross-Platform | Windows only | ✅ | Windows only | Windows only |
-
----
-
-## Development
-
-### Prerequisites
-- .NET 8 SDK
-- Visual Studio 2022 or VS Code with C# extension
-
-### Build
-```cmd
-cd src\EasyDictate
-dotnet restore
-dotnet build
-```
-
-### Run
-```cmd
-dotnet run
-```
-
-### Publish (Single-File EXE)
-```cmd
-dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o publish
-```
-
----
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+KaiserVox is a sibling project in the Kaiser ecosystem (alongside **Kaisercloud**), built for users who want local-first tooling with zero fluff.
 
 ---
 
 ## Credits
 
-- [Whisper.net](https://github.com/sandrohanea/whisper.net) - C# bindings for whisper.cpp
-- [whisper.cpp](https://github.com/ggerganov/whisper.cpp) - High-performance Whisper inference
-- [OpenAI Whisper](https://github.com/openai/whisper) - Original speech recognition model
-- [NAudio](https://github.com/naudio/NAudio) - Audio library for .NET
-- [Hardcodet.NotifyIcon.Wpf](https://github.com/hardcodet/wpf-notifyicon) - WPF system tray icon
+- Original project: **EasyDictate**
+- Whisper runtime: `Whisper.net`
+- Audio capture: `NAudio`
 
+Respect to the original foundation - KaiserVox builds on top of that work.
+
+---
+
+## License
+
+MIT

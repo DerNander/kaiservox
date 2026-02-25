@@ -1,5 +1,5 @@
 @echo off
-echo Building EasyDictate...
+echo Building KaiserVox...
 
 REM Check for dotnet
 where dotnet >nul 2>&1

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace EasyDictate.Models;
+namespace KaiserVox.Models;
 
 /// <summary>
 /// Application settings persisted to config.json

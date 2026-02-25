@@ -1,5 +1,5 @@
 @echo off
-echo Publishing EasyDictate as single-file executable...
+echo Publishing KaiserVox as single-file executable...
 
 REM Use full path to dotnet if not in PATH
 set DOTNET="C:\Program Files\dotnet\dotnet.exe"
@@ -16,7 +16,7 @@ if %ERRORLEVEL% neq 0 (
 
 echo.
 echo Publish successful!
-echo Output: publish\EasyDictate.exe
+echo Output: publish\KaiserVox.exe
 echo.
-echo You can now distribute publish\EasyDictate.exe
+echo You can now distribute publish\KaiserVox.exe
 

@@ -1,12 +1,12 @@
 using System.Windows;
-using EasyDictate.Services;
-using EasyDictate.Views;
+using KaiserVox.Services;
+using KaiserVox.Views;
 using Hardcodet.Wpf.TaskbarNotification;
 
-namespace EasyDictate;
+namespace KaiserVox;
 
 /// <summary>
-/// Main application class for EasyDictate
+/// Main application class for KaiserVox
 /// </summary>
 public partial class App : Application
 {
@@ -31,20 +31,20 @@ public partial class App : Application
         {
             var ex = args.ExceptionObject as Exception;
             MessageBox.Show($"Unhandled exception:\n\n{ex?.Message}\n\n{ex?.StackTrace}",
-                "EasyDictate Crash", MessageBoxButton.OK, MessageBoxImage.Error);
+                "KaiserVox Crash", MessageBoxButton.OK, MessageBoxImage.Error);
         };
 
         DispatcherUnhandledException += (s, args) =>
         {
             MessageBox.Show($"UI exception:\n\n{args.Exception.Message}\n\n{args.Exception.StackTrace}",
-                "EasyDictate Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                "KaiserVox Error", MessageBoxButton.OK, MessageBoxImage.Error);
             args.Handled = true; // Prevent crash
         };
 
         TaskScheduler.UnobservedTaskException += (s, args) =>
         {
             MessageBox.Show($"Task exception:\n\n{args.Exception.Message}",
-                "EasyDictate Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                "KaiserVox Error", MessageBoxButton.OK, MessageBoxImage.Error);
             args.SetObserved();
         };
 
@@ -98,7 +98,7 @@ public partial class App : Application
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to load transcription model: {ex.Message}\n\nPlease check Settings to re-download the model.",
-                    "EasyDictate", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    "KaiserVox", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -119,7 +119,7 @@ public partial class App : Application
         _trayIcon = new TaskbarIcon
         {
             DataContext = _trayViewModel,
-            ToolTipText = $"EasyDictate\nHold {hotkeyText} to dictate",
+            ToolTipText = $"KaiserVox\nHold {hotkeyText} to dictate",
             ContextMenu = CreateContextMenu()
         };
         _trayViewModel.UpdateIcon(_trayIcon);

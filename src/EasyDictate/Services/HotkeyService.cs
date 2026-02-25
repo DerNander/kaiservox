@@ -1,9 +1,9 @@
 using System.Windows;
 using System.Windows.Interop;
-using EasyDictate.Helpers;
-using EasyDictate.Models;
+using KaiserVox.Helpers;
+using KaiserVox.Models;
 
-namespace EasyDictate.Services;
+namespace KaiserVox.Services;
 
 /// <summary>
 /// Manages global hotkey registration for push-to-talk

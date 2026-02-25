@@ -1,6 +1,6 @@
-# EasyDictate Website
+# KaiserVox Website
 
-Landing page for [easydictate.app](https://easydictate.app)
+Landing page for [kaiservox.app](https://kaiservox.app)
 
 ## Deployment
 

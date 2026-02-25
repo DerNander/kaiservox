@@ -3,10 +3,10 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
-using EasyDictate.Services;
+using KaiserVox.Services;
 using Hardcodet.Wpf.TaskbarNotification;
 
-namespace EasyDictate.Views;
+namespace KaiserVox.Views;
 
 /// <summary>
 /// ViewModel for the system tray icon
@@ -14,7 +14,7 @@ namespace EasyDictate.Views;
 public class TrayIconViewModel : INotifyPropertyChanged
 {
     private TaskbarIcon? _trayIcon;
-    private string _tooltipText = "EasyDictate - Ready";
+    private string _tooltipText = "KaiserVox - Ready";
     private DictationState _currentState = DictationState.Idle;
     private Icon? _appIcon;
 
@@ -50,7 +50,7 @@ public class TrayIconViewModel : INotifyPropertyChanged
         try
         {
             // Load icon from embedded resource
-            var resourceUri = new Uri("pack://application:,,,/EasyDictate;component/Resources/icon.ico", UriKind.Absolute);
+            var resourceUri = new Uri("pack://application:,,,/KaiserVox;component/Resources/icon.ico", UriKind.Absolute);
             var streamInfo = Application.GetResourceStream(resourceUri);
             if (streamInfo != null)
             {
@@ -74,11 +74,11 @@ public class TrayIconViewModel : INotifyPropertyChanged
         
         TooltipText = state switch
         {
-            DictationState.Idle => $"EasyDictate\nHold {hotkeyText} to dictate",
-            DictationState.Listening => "EasyDictate - Listening...",
-            DictationState.Transcribing => "EasyDictate - Transcribing...",
-            DictationState.Error => "EasyDictate - Error",
-            _ => "EasyDictate"
+            DictationState.Idle => $"KaiserVox\nHold {hotkeyText} to dictate",
+            DictationState.Listening => "KaiserVox - Listening...",
+            DictationState.Transcribing => "KaiserVox - Transcribing...",
+            DictationState.Error => "KaiserVox - Error",
+            _ => "KaiserVox"
         };
 
         UpdateIcon(_trayIcon);

@@ -31,7 +31,7 @@
   <ItemGroup>
     <!-- Whisper.net for local speech-to-text -->
     <PackageReference Include="Whisper.net" Version="1.7.4" />
-    <PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />
+    <PackageReference Include="Whisper.net.Runtime.Cuda" Version="1.7.4" />
     
     <!-- NAudio for audio capture -->
     <PackageReference Include="NAudio" Version="2.2.1" />

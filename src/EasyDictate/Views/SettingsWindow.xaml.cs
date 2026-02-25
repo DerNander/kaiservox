@@ -42,7 +42,8 @@ public partial class SettingsWindow : Window
         StartupCheckbox.IsChecked = settings.RunOnStartup;
         OverlayCheckbox.IsChecked = settings.ShowOverlay;
 
-        // Model status
+        // Models
+        LoadModels();
         UpdateModelStatus();
     }
 
@@ -73,19 +74,57 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private void LoadModels()
+    {
+        var models = App.ModelManager.GetAvailableModels();
+        ModelComboBox.Items.Clear();
+
+        foreach (var model in models)
+        {
+            ModelComboBox.Items.Add(model);
+        }
+
+        if (ModelComboBox.Items.Count == 0)
+        {
+            ModelComboBox.Items.Add("ggml-base.en.bin");
+        }
+
+        var selected = App.Settings.Current.SelectedModelFile;
+        if (string.IsNullOrWhiteSpace(selected))
+        {
+            selected = App.ModelManager.GetSelectedModelFile();
+            App.Settings.Current.SelectedModelFile = selected;
+        }
+
+        ModelComboBox.SelectedItem = selected;
+
+        if (ModelComboBox.SelectedItem == null && ModelComboBox.Items.Count > 0)
+        {
+            ModelComboBox.SelectedIndex = 0;
+            App.Settings.Current.SelectedModelFile = ModelComboBox.SelectedItem?.ToString() ?? "ggml-base.en.bin";
+        }
+    }
+
     private void UpdateModelStatus()
     {
+        var selected = App.Settings.Current.SelectedModelFile;
+        if (string.IsNullOrWhiteSpace(selected))
+        {
+            selected = App.ModelManager.GetSelectedModelFile();
+            App.Settings.Current.SelectedModelFile = selected;
+        }
+
+        ModelStatusText.Text = selected;
+
         if (App.ModelManager.IsModelDownloaded())
         {
-            ModelStatusText.Text = "whisper-base-en";
             ModelSizeText.Text = $"{App.ModelManager.GetModelSizeDisplay()} - Downloaded";
             RedownloadButton.Content = "Re-download";
         }
         else
         {
-            ModelStatusText.Text = "whisper-base-en";
             ModelSizeText.Text = "Not downloaded";
-            RedownloadButton.Content = "Download";
+            RedownloadButton.Content = "Download base model";
         }
     }
 
@@ -196,12 +235,43 @@ public partial class SettingsWindow : Window
     private void MicrophoneComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
         if (_isLoading) return;
-        
+
         if (MicrophoneComboBox.SelectedItem is MicrophoneItem item)
         {
             App.Settings.Current.MicrophoneDeviceId = item.Id;
             _ = App.Settings.SaveAsync();
         }
+    }
+
+    private async void ModelComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (_isLoading) return;
+        if (ModelComboBox.SelectedItem is not string selectedModel || string.IsNullOrWhiteSpace(selectedModel)) return;
+
+        if (string.Equals(App.Settings.Current.SelectedModelFile, selectedModel, StringComparison.OrdinalIgnoreCase))
+        {
+            UpdateModelStatus();
+            return;
+        }
+
+        App.Settings.Current.SelectedModelFile = selectedModel;
+        await App.Settings.SaveAsync();
+
+        try
+        {
+            App.Transcription.Unload();
+            if (App.ModelManager.IsModelDownloaded())
+            {
+                await App.Transcription.InitializeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to load selected model '{selectedModel}': {ex.Message}",
+                "Model Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        UpdateModelStatus();
     }
 
     private void OutputMode_Changed(object sender, RoutedEventArgs e)
@@ -240,7 +310,7 @@ public partial class SettingsWindow : Window
     private async void RedownloadButton_Click(object sender, RoutedEventArgs e)
     {
         var result = MessageBox.Show(
-            "This will download the speech recognition model (~756 MB). Continue?",
+            "This will download the base speech model (ggml-base.en.bin). Continue?",
             "Download Model",
             MessageBoxButton.YesNo,
             MessageBoxImage.Question);
@@ -261,9 +331,10 @@ public partial class SettingsWindow : Window
         try
         {
             await App.ModelManager.DownloadModelAsync();
+            LoadModels();
             await App.Transcription.InitializeAsync();
             UpdateModelStatus();
-            MessageBox.Show("Model downloaded and loaded successfully!", "Success", 
+            MessageBox.Show("Model downloaded and loaded successfully!", "Success",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)

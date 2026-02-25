@@ -338,35 +338,51 @@
                 <Border Background="#22223A" 
                         CornerRadius="8" 
                         Padding="14">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <StackPanel>
-                            <TextBlock x:Name="ModelStatusText"
-                                       Text="whisper-base-en"
-                                       Foreground="White"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"/>
-                            <TextBlock x:Name="ModelSizeText"
-                                       Text="140 MB - Downloaded"
-                                       Foreground="#6B6B8D"
-                                       FontSize="12"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
-                        
-                        <Button x:Name="RedownloadButton"
-                                Grid.Column="1"
-                                Content="Re-download"
-                                Background="#3D3D5C"
-                                Foreground="White"
-                                BorderThickness="0"
-                                Padding="14,8"
-                                FontSize="12"
-                                Cursor="Hand"
-                                Click="RedownloadButton_Click">
+                    <StackPanel>
+                        <TextBlock Text="Model file"
+                                   Foreground="#9A9AB8"
+                                   FontSize="12"
+                                   Margin="0,0,0,6"/>
+
+                        <ComboBox x:Name="ModelComboBox"
+                                  Background="#1A1A2E"
+                                  Foreground="White"
+                                  BorderBrush="#3D3D5C"
+                                  BorderThickness="1"
+                                  Padding="8,6"
+                                  FontSize="13"
+                                  SelectionChanged="ModelComboBox_SelectionChanged"
+                                  Margin="0,0,0,10"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock x:Name="ModelStatusText"
+                                           Text="ggml-base.en.bin"
+                                           Foreground="White"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"/>
+                                <TextBlock x:Name="ModelSizeText"
+                                           Text="Not downloaded"
+                                           Foreground="#6B6B8D"
+                                           FontSize="12"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+
+                            <Button x:Name="RedownloadButton"
+                                    Grid.Column="1"
+                                    Content="Re-download"
+                                    Background="#3D3D5C"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Padding="14,8"
+                                    FontSize="12"
+                                    Cursor="Hand"
+                                    Click="RedownloadButton_Click">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border Background="{TemplateBinding Background}" 
@@ -383,6 +399,7 @@
                             </Button.Template>
                         </Button>
                     </Grid>
+                    </StackPanel>
                 </Border>
 
         </StackPanel>

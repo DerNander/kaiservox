@@ -11,12 +11,11 @@ public class ModelManager
     private readonly SettingsService _settings;
     private readonly HttpClient _httpClient;
 
-    // Using ggml-base.en for fast English transcription (~140MB, very fast)
-    private const string ModelFileName = "ggml-base.en.bin";
-    private const string ModelUrl = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin";
-    private const long ExpectedModelSize = 140_000_000; // ~140MB
-    
-    public string ModelPath => Path.Combine(_settings.ModelsPath, ModelFileName);
+    private const string DefaultModelFileName = "ggml-base.en.bin";
+    private const string DefaultModelUrl = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin";
+    private const long ExpectedDefaultModelSize = 140_000_000; // ~140MB
+
+    public string DefaultModelPath => Path.Combine(_settings.ModelsPath, DefaultModelFileName);
 
     public event EventHandler<DownloadProgressEventArgs>? DownloadProgress;
 
@@ -30,11 +29,59 @@ public class ModelManager
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "EasyDictate/1.0");
     }
 
+    public IReadOnlyList<string> GetAvailableModels()
+    {
+        try
+        {
+            Directory.CreateDirectory(_settings.ModelsPath);
+
+            return Directory
+                .EnumerateFiles(_settings.ModelsPath, "*.bin", SearchOption.TopDirectoryOnly)
+                .Select(Path.GetFileName)
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+                .Cast<string>()
+                .ToList();
+        }
+        catch
+        {
+            return Array.Empty<string>();
+        }
+    }
+
+    public string GetModelPath(string? fileName)
+    {
+        var name = string.IsNullOrWhiteSpace(fileName)
+            ? DefaultModelFileName
+            : Path.GetFileName(fileName);
+
+        return Path.Combine(_settings.ModelsPath, name!);
+    }
+
+    public string GetSelectedModelFile()
+    {
+        var selected = _settings.Current.SelectedModelFile;
+        var selectedPath = GetModelPath(selected);
+
+        if (File.Exists(selectedPath))
+            return Path.GetFileName(selectedPath)!;
+
+        var available = GetAvailableModels();
+        if (available.Count > 0)
+            return available[0];
+
+        return DefaultModelFileName;
+    }
+
+    public string ModelPath => GetModelPath(GetSelectedModelFile());
+
     public bool IsModelDownloaded()
     {
-        if (!File.Exists(ModelPath)) return false;
-        var fileInfo = new FileInfo(ModelPath);
-        return fileInfo.Length > ExpectedModelSize * 0.9;
+        var path = ModelPath;
+        if (!File.Exists(path)) return false;
+
+        var fileInfo = new FileInfo(path);
+        return fileInfo.Length > 0;
     }
 
     public async Task DownloadModelAsync(CancellationToken cancellationToken = default)
@@ -56,7 +103,7 @@ public class ModelManager
         HttpResponseMessage response;
         try
         {
-            response = await _httpClient.GetAsync(ModelUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response = await _httpClient.GetAsync(DefaultModelUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -68,7 +115,7 @@ public class ModelManager
             throw new Exception($"Server returned error: {response.StatusCode} {response.ReasonPhrase}");
         }
 
-        var totalBytes = response.Content.Headers.ContentLength ?? ExpectedModelSize;
+        var totalBytes = response.Content.Headers.ContentLength ?? ExpectedDefaultModelSize;
 
         // Step 4: Get content stream
         Stream contentStream;
@@ -128,34 +175,41 @@ public class ModelManager
             throw new Exception($"Failed during download: {ex.Message}", ex);
         }
 
+        var finalPath = DefaultModelPath;
+
         // Step 8: Move to final location
         try
         {
-            if (File.Exists(ModelPath))
+            if (File.Exists(finalPath))
             {
-                File.Delete(ModelPath);
+                File.Delete(finalPath);
             }
-            File.Move(tempPath, ModelPath);
+            File.Move(tempPath, finalPath);
+
+            _settings.Current.SelectedModelFile = DefaultModelFileName;
+            await _settings.SaveAsync();
         }
         catch (Exception ex)
         {
             try { File.Delete(tempPath); } catch { }
-            throw new Exception($"Failed to move file to '{ModelPath}': {ex.Message}", ex);
+            throw new Exception($"Failed to move file to '{finalPath}': {ex.Message}", ex);
         }
     }
 
     public void DeleteModel()
     {
-        if (File.Exists(ModelPath))
+        var path = ModelPath;
+        if (File.Exists(path))
         {
-            File.Delete(ModelPath);
+            File.Delete(path);
         }
     }
 
     public string GetModelSizeDisplay()
     {
-        if (!File.Exists(ModelPath)) return "Not downloaded";
-        var size = new FileInfo(ModelPath).Length;
+        var path = ModelPath;
+        if (!File.Exists(path)) return "Not downloaded";
+        var size = new FileInfo(path).Length;
         return FormatBytes(size);
     }
 

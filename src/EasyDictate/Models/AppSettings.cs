@@ -56,6 +56,11 @@ public class AppSettings
     /// Transcription language ("auto" for automatic detection)
     /// </summary>
     public string Language { get; set; } = "auto";
+
+    /// <summary>
+    /// Selected Whisper model filename in the models directory
+    /// </summary>
+    public string SelectedModelFile { get; set; } = "ggml-base.en.bin";
 }
 
 /// <summary>

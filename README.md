@@ -1,7 +1,7 @@
 # KaiserVox
 
 <p align="center">
-  <img src="src/EasyDictate/Resources/icon.svg" alt="KaiserVox" width="128" />
+  <img src="assets/kaiservox-logo.png" alt="KaiserVox" width="200" />
 </p>
 
 <p align="center">

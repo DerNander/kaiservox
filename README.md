@@ -184,12 +184,6 @@ Output: `src/EasyDictate/bin/Release/net8.0-windows/win-x64/publish/KaiserVox.ex
 
 ---
 
-## Part of the Kaiser Ecosystem
-
-KaiserVox sits alongside [Kaisercloud](https://github.com/DerNander) — local-first tools built for privacy, performance, and zero bullshit.
-
----
-
 ## Credits
 
 KaiserVox is an enhanced fork of [EasyDictate](https://github.com/EasyDictate/EasyDictate) by the original authors. Built on top of excellent open-source work:

@@ -98,6 +98,7 @@ public class DictationCoordinator
     private void OnRecordingStarted(object? sender, EventArgs e)
     {
         SetState(DictationState.Listening);
+        FeedbackSoundService.PlayListening();
     }
 
     private async void OnRecordingStopped(object? sender, byte[] audioData)
@@ -115,6 +116,7 @@ public class DictationCoordinator
 
             _isProcessing = true;
             SetState(DictationState.Transcribing);
+            FeedbackSoundService.PlayProcessing();
 
             System.Diagnostics.Debug.WriteLine("Starting transcription...");
             var text = await _transcription.TranscribeAsync(audioData);

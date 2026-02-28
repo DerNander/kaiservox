@@ -1,5 +1,7 @@
+using System.Diagnostics;
+using System.IO;
+using System.Media;
 using System.Windows;
-using System.Windows.Media;
 
 namespace KaiserVox.Services;
 
@@ -8,77 +10,107 @@ namespace KaiserVox.Services;
 /// </summary>
 public static class FeedbackSoundService
 {
-    private static readonly object Sync = new();
-    private static readonly List<MediaPlayer> ActivePlayers = new();
-
     private static readonly Uri ListeningUri = new("pack://application:,,,/Resources/Sounds/listening.wav", UriKind.Absolute);
     private static readonly Uri ProcessingUri = new("pack://application:,,,/Resources/Sounds/processing.wav", UriKind.Absolute);
 
+    private static readonly Lazy<byte[]?> ListeningBytes = new(() => LoadResourceBytes(ListeningUri, "listening.wav"));
+    private static readonly Lazy<byte[]?> ProcessingBytes = new(() => LoadResourceBytes(ProcessingUri, "processing.wav"));
+
+    public static void ValidateResources()
+    {
+        _ = ListeningBytes.Value;
+        _ = ProcessingBytes.Value;
+    }
+
     public static void PlayListening()
     {
-        Play(ListeningUri, 0.28);
+        Play(ListeningBytes.Value, "listening");
     }
 
     public static void PlayProcessing()
     {
-        Play(ProcessingUri, 0.30);
+        Play(ProcessingBytes.Value, "processing");
     }
 
-    private static void Play(Uri uri, double volume)
+    private static void Play(byte[]? soundBytes, string soundName)
     {
         try
         {
-            if (Application.Current == null || !App.Settings.Current.PlaySounds)
+            if (!IsEnabled())
             {
                 return;
             }
 
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            if (soundBytes == null || soundBytes.Length == 0)
+            {
+                Debug.WriteLine($"FeedbackSoundService: '{soundName}' sound resource missing, using fallback system sound.");
+                SystemSounds.Asterisk.Play();
+                return;
+            }
+
+            _ = Task.Run(() =>
             {
                 try
                 {
-                    var player = new MediaPlayer
-                    {
-                        Volume = volume
-                    };
-
-                    player.MediaEnded += (_, _) => Cleanup(player);
-                    player.MediaFailed += (_, _) => Cleanup(player);
-
-                    lock (Sync)
-                    {
-                        ActivePlayers.Add(player);
-                    }
-
-                    player.Open(uri);
-                    player.Play();
+                    using var stream = new MemoryStream(soundBytes, writable: false);
+                    using var player = new SoundPlayer(stream);
+                    player.PlaySync();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Non-critical: sound feedback should never break dictation flow.
+                    Debug.WriteLine($"FeedbackSoundService: failed to play '{soundName}' sound: {ex.Message}");
+                    SystemSounds.Asterisk.Play();
                 }
             });
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore playback errors.
+            Debug.WriteLine($"FeedbackSoundService: unexpected playback error: {ex.Message}");
         }
     }
 
-    private static void Cleanup(MediaPlayer player)
+    private static bool IsEnabled()
     {
-        lock (Sync)
+        if (Application.Current == null)
         {
-            ActivePlayers.Remove(player);
+            return false;
         }
 
         try
         {
-            player.Close();
+            return App.Settings?.Current?.PlaySounds ?? true;
         }
         catch
         {
-            // Ignore cleanup errors.
+            return true;
+        }
+    }
+
+    private static byte[]? LoadResourceBytes(Uri resourceUri, string label)
+    {
+        try
+        {
+            if (Application.Current == null)
+            {
+                return null;
+            }
+
+            var info = Application.GetResourceStream(resourceUri);
+            if (info?.Stream == null)
+            {
+                Debug.WriteLine($"FeedbackSoundService: embedded sound not found: {label}");
+                return null;
+            }
+
+            using var input = info.Stream;
+            using var output = new MemoryStream();
+            input.CopyTo(output);
+            return output.ToArray();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"FeedbackSoundService: failed loading '{label}' resource: {ex.Message}");
+            return null;
         }
     }
 }

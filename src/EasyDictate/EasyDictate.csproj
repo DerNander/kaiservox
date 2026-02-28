@@ -9,7 +9,7 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <AssemblyName>KaiserVox</AssemblyName>
     <RootNamespace>KaiserVox</RootNamespace>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
     <Authors>KaiserVox</Authors>
     <Product>KaiserVox</Product>
     <Description>Simple, fast, private voice dictation for Windows</Description>

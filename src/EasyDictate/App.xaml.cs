@@ -52,6 +52,9 @@ public partial class App : Application
         Settings = new SettingsService();
         await Settings.LoadAsync();
 
+        // Validate embedded feedback sound resources early (non-fatal if missing).
+        FeedbackSoundService.ValidateResources();
+
         ModelManager = new ModelManager(Settings);
         AudioCapture = new AudioCaptureService(Settings);
         Transcription = new TranscriptionService(ModelManager, Settings.Current);

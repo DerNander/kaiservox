@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using System.Diagnostics;
 using KaiserVox.Models;
 using Microsoft.Win32;
 
@@ -13,6 +14,8 @@ public class SettingsService
     private const string AppName = "KaiserVox";
     private const string LegacyAppName = "EasyDictate";
     private const string ConfigFileName = "config.json";
+    private const string StartupArgument = "--startup";
+    private const string RunKeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
     
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -132,30 +135,175 @@ public class SettingsService
     /// </summary>
     public void SetRunOnStartup(bool enabled)
     {
-        const string keyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
-        
         try
         {
-            using var key = Registry.CurrentUser.OpenSubKey(keyPath, true);
+            using var key = Registry.CurrentUser.OpenSubKey(RunKeyPath, true);
             if (key == null) return;
+
+            var startupValueName = GetStartupValueName();
 
             if (enabled)
             {
-                var exePath = Environment.ProcessPath;
-                if (!string.IsNullOrEmpty(exePath))
+                var exePath = ResolveExecutablePath();
+                if (string.IsNullOrWhiteSpace(exePath))
                 {
-                    key.SetValue(AppName, $"\"{exePath}\"");
+                    Debug.WriteLine("Startup: failed to resolve executable path.");
+                    return;
                 }
+
+                var command = BuildStartupCommand(exePath);
+                key.SetValue(startupValueName, command, RegistryValueKind.String);
+                key.DeleteValue(LegacyAppName, false);
+
+                Debug.WriteLine($"Startup: writing registry value '{startupValueName}' => {command}");
+
+                var writtenValue = key.GetValue(startupValueName)?.ToString();
+                var verified = string.Equals(writtenValue, command, StringComparison.Ordinal);
+                Debug.WriteLine(verified
+                    ? $"Startup: verification OK for '{startupValueName}'."
+                    : $"Startup: verification FAILED for '{startupValueName}'. Read back: {writtenValue ?? "<null>"}");
             }
             else
             {
-                key.DeleteValue(AppName, false);
+                key.DeleteValue(startupValueName, false);
+                key.DeleteValue(LegacyAppName, false);
+
+                var stillExists = key.GetValue(startupValueName) is not null || key.GetValue(LegacyAppName) is not null;
+                Debug.WriteLine(stillExists
+                    ? $"Startup: removal verification FAILED. '{startupValueName}' or '{LegacyAppName}' still present."
+                    : "Startup: removal verification OK.");
             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Failed to set startup: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Check if startup registry value currently points to this app executable
+    /// </summary>
+    public bool IsRunOnStartupEnabled()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(RunKeyPath, false);
+            if (key == null) return false;
+
+            var startupValueName = GetStartupValueName();
+            var registryValue = key.GetValue(startupValueName)?.ToString()
+                ?? key.GetValue(LegacyAppName)?.ToString();
+
+            if (string.IsNullOrWhiteSpace(registryValue))
+                return false;
+
+            var configuredExe = ExtractExecutablePath(registryValue);
+            var currentExe = ResolveExecutablePath();
+            if (string.IsNullOrWhiteSpace(configuredExe) || string.IsNullOrWhiteSpace(currentExe))
+                return false;
+
+            var matchesPath = string.Equals(
+                Path.GetFullPath(configuredExe),
+                Path.GetFullPath(currentExe),
+                StringComparison.OrdinalIgnoreCase);
+
+            var hasStartupArgument = registryValue.Contains(StartupArgument, StringComparison.OrdinalIgnoreCase);
+            return matchesPath && hasStartupArgument;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to read startup state: {ex.Message}");
+            return false;
+        }
+    }
+
+    private static string GetStartupValueName()
+    {
+        if (!string.IsNullOrWhiteSpace(AppName))
+            return AppName;
+
+        var fallbackExe = ResolveExecutablePath();
+        if (!string.IsNullOrWhiteSpace(fallbackExe))
+        {
+            var fileName = Path.GetFileNameWithoutExtension(fallbackExe);
+            if (!string.IsNullOrWhiteSpace(fileName))
+                return fileName;
+        }
+
+        return "KaiserVox";
+    }
+
+    private static string BuildStartupCommand(string exePath)
+    {
+        return $"\"{exePath}\" {StartupArgument}";
+    }
+
+    private static string? ResolveExecutablePath()
+    {
+        string? mainModulePath = null;
+        try
+        {
+            mainModulePath = Process.GetCurrentProcess().MainModule?.FileName;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Startup: failed to read Process.MainModule path: {ex.Message}");
+        }
+
+        var candidates = new[]
+        {
+            Environment.ProcessPath,
+            mainModulePath,
+            Environment.GetCommandLineArgs().FirstOrDefault()
+        };
+
+        foreach (var candidate in candidates)
+        {
+            if (string.IsNullOrWhiteSpace(candidate))
+                continue;
+
+            var normalized = candidate.Trim().Trim('"');
+            if (!Path.IsPathRooted(normalized))
+                continue;
+
+            string fullPath;
+            try
+            {
+                fullPath = Path.GetFullPath(normalized);
+            }
+            catch
+            {
+                continue;
+            }
+
+            if (!File.Exists(fullPath))
+                continue;
+
+            if (!fullPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            return fullPath;
+        }
+
+        return null;
+    }
+
+    private static string? ExtractExecutablePath(string startupCommand)
+    {
+        var value = startupCommand.Trim();
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        if (value.StartsWith("\"", StringComparison.Ordinal))
+        {
+            var endQuote = value.IndexOf('"', 1);
+            if (endQuote > 1)
+                return value[1..endQuote];
+            return null;
+        }
+
+        var firstSpace = value.IndexOf(' ');
+        return firstSpace > 0 ? value[..firstSpace] : value;
     }
 
     /// <summary>
@@ -190,4 +338,3 @@ public class SettingsService
         return string.Join(" + ", parts);
     }
 }
-

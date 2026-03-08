@@ -39,6 +39,7 @@ public partial class SettingsWindow : Window
         ClipboardRadio.IsChecked = settings.OutputMode == OutputMode.CopyToClipboard;
 
         // General
+        settings.RunOnStartup = App.Settings.IsRunOnStartupEnabled();
         StartupCheckbox.IsChecked = settings.RunOnStartup;
         OverlayCheckbox.IsChecked = settings.ShowOverlay;
 
@@ -379,4 +380,3 @@ public class MicrophoneItem
 
     public override string ToString() => Name;
 }
-
